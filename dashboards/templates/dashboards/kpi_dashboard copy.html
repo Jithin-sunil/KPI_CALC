@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>KPI Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        canvas { max-width: 800px; margin: 0 auto; width: 800px; }
+        h1 { text-align: center; }
+    </style>
+</head>
+<body>
+    <h1>Employee KPI Dashboard - {{ month }}</h1>
+    <canvas id="kpiChart"></canvas>
+    <script>
+        const ctx = document.getElementById('kpiChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: {{ chart_data.labels|safe }},
+                datasets: {{ chart_data.datasets|safe }}
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Value' }
+                    },
+                    x: {
+                        title: { display: true, text: 'Employee' }
+                    }
+                },
+                plugins: {
+                    title: { display: true, text: 'Monthly Performance Metrics ({{ month }})' },
+                    legend: { display: true, position: 'top' }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
