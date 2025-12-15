@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import employee_kpi_summary, kpi_dashboard,employee, dashboard, adminregister,employee_register,employee_list
+from .views import employee_kpi_summary, kpi_dashboard,employee, dashboard, adminregister,employee_register,employee_list,upload_employee_excel
 app_name = 'dashboards'
 
 urlpatterns = [
@@ -10,4 +10,5 @@ urlpatterns = [
     path('adminregister/', adminregister, name='adminregister'),
     path('employee_register/', employee_register, name='employee_register'),
     path('employee_list/', employee_list, name='employee_list'),
+    path('upload_employee_excel/', upload_employee_excel, name='upload_employee_excel'),
 ]

@@ -9,7 +9,8 @@ from Guest.models import *
 import random,json
 import openpyxl
 from datetime import datetime
-
+import pandas as pd
+from django.contrib import messages
 @api_view(['GET'])
 def employee_kpi_summary(request, employee_id):
     try:
@@ -32,16 +33,105 @@ def kpi_dashboard(request, employee_id):
 
 
 def employee(request):
-    emp=tbl_employee.objects.all()
-    if request.method == 'POST':
-        name=request.POST.get('txt_name')
-        email=request.POST.get('txt_email')
-        dob=request.POST.get('txt_dob')
-        tbl_employee.objects.create(employee_name=name,employee_email=email,employee_dob=dob)
-        return render(request, 'dashboards/employee.html',{'msg':'Employee Added Successfully'})
-    else:
-        return render(request, 'dashboards/employee.html',{'emp':emp})
+    emp = tbl_employee.objects.all()
 
+    if request.method == 'POST':
+        name = request.POST.get('txt_name')
+        email = request.POST.get('txt_email')
+        phone = request.POST.get('txt_phone')
+        designation = request.POST.get('txt_designation')
+        department = request.POST.get('txt_department')
+        join_date = request.POST.get('txt_join_date')
+        password = request.POST.get('txt_password')
+
+        # Duplicate email check
+        if tbl_employee.objects.filter(employee_email=email).exists():
+            messages.error(request, "Employee with this email already exists")
+        else:
+            tbl_employee.objects.create(
+                employee_name=name,
+                employee_email=email,
+                employee_phone=phone,
+                employee_designation=designation,
+                employee_department=department,
+                employee_join_date=join_date,
+                employee_password=password
+            )
+            messages.success(request, "Employee Added Successfully")
+
+    return render(request, 'dashboards/employee.html', {'emp': emp})
+
+
+def upload_employee_excel(request):
+    if request.method == "POST" and request.FILES.get("file"):
+        file = request.FILES["file"]
+
+        # File validation
+        if not (file.name.endswith(".xlsx") or file.name.endswith(".xls")):
+            messages.error(request, "Only Excel files (.xlsx, .xls) are allowed")
+            return redirect("upload_employee_excel")
+
+        try:
+            df = pd.read_excel(file)
+
+            required_columns = {
+                "Name", "Email", "Phone",
+                "Designation", "Department",
+                "JoinDate", "Password"
+            }
+
+            if not required_columns.issubset(df.columns):
+                messages.error(
+                    request,
+                    "Invalid Excel format! Required columns: "
+                    "Name, Email, Phone, Designation, Department, JoinDate, Password"
+                )
+                return redirect("upload_employee_excel")
+
+            success_count = 0
+
+            for _, row in df.iterrows():
+                name = str(row["Name"]).strip()
+                email = str(row["Email"]).strip()
+                phone = str(row["Phone"]).strip()
+                designation = str(row["Designation"]).strip()
+                department = str(row["Department"]).strip()
+                join_date = row["JoinDate"]
+                password = str(row["Password"]).strip()
+
+                # Email validation
+                if "@" not in email:
+                    messages.warning(request, f"Invalid email skipped: {email}")
+                    continue
+
+                # Phone validation
+                if not phone.isdigit() or len(phone) < 10:
+                    messages.warning(request, f"Invalid phone skipped: {phone}")
+                    continue
+
+                # Duplicate email check
+                if tbl_employee.objects.filter(employee_email=email).exists():
+                    messages.warning(request, f"Duplicate email skipped: {email}")
+                    continue
+
+                tbl_employee.objects.create(
+                    employee_name=name,
+                    employee_email=email,
+                    employee_phone=phone,
+                    employee_designation=designation,
+                    employee_department=department,
+                    employee_join_date=join_date,
+                    employee_password=password
+                )
+
+                success_count += 1
+
+            messages.success(request, f"{success_count} employees uploaded successfully!")
+
+        except Exception as e:
+            messages.error(request, f"Error processing file: {str(e)}")
+
+    return render(request, "dashboards/upload_employee.html")
 
 def dashboard(request):
     # Demo data for 10 employees (September 2025, 4-week month)

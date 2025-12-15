@@ -2,61 +2,85 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Employee</title>
 </head>
 <body>
-        <form action="" method="post">
-            {% csrf_token %}
-            <table border="1"  cellpadding="10">
-                <tr>
-                    <td>Name</td>
-                    <td><input type="text" name="txt_name" id="txt_name"></td>
-                </tr>
-                <tr>
-                    <td>Email</td>
-                    <td><input type="email" name="txt_email" id="txt_email"></td>
-                </tr>
-                <tr>
-                    <td>DOB</td>
-                    <td><input type="date" name="txt_dob" id="txt_dob"></td>
-                </tr>
-                <tr>
-                    <td colspan="2" align="center">
-                        <input type="submit" value="Submit">
-                    </td>
-                   
-                </tr>
 
-            </table>
-        </form>
-        <br>
-        <table border="1" cellpadding="10" >
-            <tr>
-                <td>SNO</td>
-                <td>Name</td>
-                <td>Email</td>
-                <td>DOB</td>
-                <td>Action</td>
-            </tr>
-            {% for i in emp %}
-            <tr>
-                <td>{{forloop.counter}}</td>
-                <td>{{i.employee_name}}</td>
-                <td>{{i.employee_email}}</td>
-                <td>{{i.employee_dob}}</td>
-                <td>
-                    <a href="{% url 'dashboards:employee_kpi_summary' 1 %}">Summery</a>
-                    <a href="{% url 'dashboards:kpi_dashboard' 1 %}">Dashboard</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </table>
+<form action="" method="post">
+    {% csrf_token %}
+    <table border="1" cellpadding="10">
+        <tr>
+            <td>Name</td>
+            <td><input type="text" name="txt_name" required></td>
+        </tr>
+        <tr>
+            <td>Email</td>
+            <td><input type="email" name="txt_email" required></td>
+        </tr>
+        <tr>
+            <td>Phone</td>
+            <td><input type="text" name="txt_phone" required></td>
+        </tr>
+        <tr>
+            <td>Designation</td>
+            <td><input type="text" name="txt_designation" required></td>
+        </tr>
+        <tr>
+            <td>Department</td>
+            <td><input type="text" name="txt_department" required></td>
+        </tr>
+        <tr>
+            <td>Join Date</td>
+            <td><input type="date" name="txt_join_date" required></td>
+        </tr>
+        <tr>
+            <td>Password</td>
+            <td><input type="password" name="txt_password"></td>
+        </tr>
+        <tr>
+            <td colspan="2" align="center">
+                <input type="submit" value="Submit">
+            </td>
+        </tr>
+    </table>
+</form>
+
+<br><br>
+
+<table border="1" cellpadding="10">
+    <tr>
+        <th>SNO</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Phone</th>
+        <th>Designation</th>
+        <th>Department</th>
+        <th>Join Date</th>
+        <th>Action</th>
+    </tr>
+
+    {% for i in emp %}
+    <tr>
+        <td>{{ forloop.counter }}</td>
+        <td>{{ i.employee_name }}</td>
+        <td>{{ i.employee_email }}</td>
+        <td>{{ i.employee_phone }}</td>
+        <td>{{ i.employee_designation }}</td>
+        <td>{{ i.employee_department }}</td>
+        <td>{{ i.employee_join_date }}</td>
+        <td>
+            <a href="{% url 'dashboards:employee_kpi_summary' i.id %}">Summary</a> |
+            <a href="{% url 'dashboards:kpi_dashboard' i.id %}">Dashboard</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% for message in messages %}
+<script>
+    alert("{{ message }}");
+</script>
+{% endfor %}
+
 </body>
 </html>
-{% if msg %}
-<script>
-    alert("{{msg}}");
-
-</script>
-{% endif %}
